@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiTrash2 } from 'react-icons/fi';
+import SubNav from './sub-nav'; // ⬅️ import sub-navbar
 
 const DeleteClient = () => {
   const navigate = useNavigate();
@@ -33,10 +34,11 @@ const DeleteClient = () => {
   };
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page delete-client-page">
+      {/* 🔝 Main Navbar */}
       <div className="dashboard-nav">
         <div className="nav-left">
-          <button className="back-btn" onClick={() => navigate('/clients')}>Back</button>
+          <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
         </div>
         <div className="nav-center">
           <h2 className="dashboard-title">Delete Client</h2>
@@ -44,6 +46,10 @@ const DeleteClient = () => {
         <div className="nav-right"></div>
       </div>
 
+      {/* 🔽 Sub Navbar */}
+      <SubNav />
+
+      {/* 📄 Page Content */}
       <div className="page-content">
         <div className="delete-client-wrapper">
           <table className="delete-client-table">

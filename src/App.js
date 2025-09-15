@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/login';
 import Signup from './pages/signup';
 import Dashboard from './pages/dashboard';
-import Client from './pages/client';
 import AddClient from './pages/add-client'; 
 import ClientInfo from './pages/client-info';
 import ClientHistory from './pages/client-history';
@@ -18,7 +17,6 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/clients" element={<Client />} />
         <Route path="/add-client" element={<AddClient />} />
         <Route path="/client-history" element={<ClientHistory />} />
         <Route path="/client-info" element={<ClientInfo />} />

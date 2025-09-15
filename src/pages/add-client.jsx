@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SubNav from './sub-nav'; // ⬅️ import your sub-navbar
 
 const AddClient = () => {
   const navigate = useNavigate();
@@ -42,57 +43,101 @@ const AddClient = () => {
     });
   };
 
-  const handleBack = () => {
-    navigate('/clients');
-  };
-
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page add-client-page">
+      {/* 🔝 Main Navbar */}
       <div className="dashboard-nav">
         <div className="nav-left">
-          <button className="back-btn" onClick={handleBack}>Back</button>
+          <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
         </div>
         <div className="nav-center">
-          <h2 className="dashboard-title">Add New Client</h2>
+          <h2 className="dashboard-title">Add Client</h2>
         </div>
         <div className="nav-right"></div>
       </div>
 
+      {/* 🔽 Sub Navbar */}
+      <SubNav />
+
+      {/* 📄 Page Content */}
       <div className="page-content">
         <div className="form-wrapper">
           <form className="add-client-form" onSubmit={handleSubmit}>
             <div className="form-grid">
               <div className="form-group">
                 <label>Client Name*</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={formData.name} 
+                  onChange={handleChange} 
+                  required 
+                />
               </div>
               <div className="form-group">
                 <label>Email Address*</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+                <input 
+                  type="email" 
+                  name="email" 
+                  value={formData.email} 
+                  onChange={handleChange} 
+                  required 
+                />
               </div>
               <div className="form-group">
                 <label>Phone Number*</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required />
+                <input 
+                  type="tel" 
+                  name="phone" 
+                  value={formData.phone} 
+                  onChange={handleChange} 
+                  required 
+                />
               </div>
               <div className="form-group">
                 <label>Date of Birth</label>
-                <input type="date" name="dob" value={formData.dob} onChange={handleChange} />
+                <input 
+                  type="date" 
+                  name="dob" 
+                  value={formData.dob} 
+                  onChange={handleChange} 
+                />
               </div>
               <div className="form-group">
                 <label>Company Name</label>
-                <input type="text" name="company" value={formData.company} onChange={handleChange} />
+                <input 
+                  type="text" 
+                  name="company" 
+                  value={formData.company} 
+                  onChange={handleChange} 
+                />
               </div>
               <div className="form-group">
                 <label>Assigned To (Employee Name)</label>
-                <input type="text" name="assignedTo" value={formData.assignedTo} onChange={handleChange} />
+                <input 
+                  type="text" 
+                  name="assignedTo" 
+                  value={formData.assignedTo} 
+                  onChange={handleChange} 
+                />
               </div>
               <div className="form-group">
                 <label>Contract Start Date</label>
-                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
+                <input 
+                  type="date" 
+                  name="startDate" 
+                  value={formData.startDate} 
+                  onChange={handleChange} 
+                />
               </div>
               <div className="form-group">
                 <label>Contract End Date</label>
-                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
+                <input 
+                  type="date" 
+                  name="endDate" 
+                  value={formData.endDate} 
+                  onChange={handleChange} 
+                />
               </div>
               <div className="form-group address-full">
                 <label>Address</label>

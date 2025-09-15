@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SubNav from './sub-nav'; // ⬅️ import sub-navbar
 
 const ClientInfo = () => {
   const [clients, setClients] = useState([]);
@@ -34,15 +35,12 @@ const ClientInfo = () => {
     setSelectedClient(null);
   };
 
-  const handleBack = () => {
-    navigate('/clients');
-  };
-
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page client-info-page">
+      {/* 🔝 Main Navbar */}
       <div className="dashboard-nav">
         <div className="nav-left">
-          <button className="back-btn" onClick={handleBack}>Back</button>
+          <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
         </div>
         <div className="nav-center">
           <h2 className="dashboard-title">Client Info</h2>
@@ -50,6 +48,10 @@ const ClientInfo = () => {
         <div className="nav-right"></div>
       </div>
 
+      {/* 🔽 Sub Navbar */}
+      <SubNav />
+
+      {/* 📄 Page Content */}
       <div className="page-content">
         <div className="client-info-table-wrapper">
           <table className="client-info-table">

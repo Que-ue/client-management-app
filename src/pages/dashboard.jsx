@@ -18,7 +18,10 @@ const Dashboard = () => {
 
       <div className="page-content">
         <div className="block-row">
-          <div className="block" onClick={() => navigate('/clients')}>Client</div>
+          {/* 🔥 Client box now opens Add Client directly */}
+          <div className="block" onClick={() => navigate('/add-client')}>Client</div>
+          
+          {/* Miscellaneous stays the same */}
           <div className="block" onClick={() => navigate('/miscellaneous')}>Miscellaneous</div>
         </div>
       </div>
