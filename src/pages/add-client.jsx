@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SubNav from './sub-nav'; // ⬅️ import your sub-navbar
+import SubNav from './sub-nav';
+
+const API_URL = "https://nestjs.nonprod.au.livepro.com.au/customers";
 
 const AddClient = () => {
   const navigate = useNavigate();
@@ -8,44 +10,52 @@ const AddClient = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    dob: '',
-    company: '',
-    address: '',
-    assignedTo: '',
-    startDate: '',
-    endDate: ''
+    region: '',
+    account: ''
   });
 
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const storedClients = JSON.parse(localStorage.getItem('clients')) || [];
-    storedClients.push(formData);
-    localStorage.setItem('clients', JSON.stringify(storedClients));
-    setSuccessMessage('Client added successfully!');
-    setTimeout(() => setSuccessMessage(''), 3000);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      dob: '',
-      company: '',
-      address: '',
-      assignedTo: '',
-      startDate: '',
-      endDate: ''
-    });
+
+    // ✅ Email domain check
+    if (!formData.email.endsWith("@livepro.com.au")) {
+      setErrorMessage("Only @livepro.com.au emails are allowed!");
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          endpoint: formData.email,  // API expects "endpoint" instead of email
+          region: formData.region,
+          account: formData.account
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to add client");
+
+      setSuccessMessage("Client added successfully!");
+      setErrorMessage('');
+      setFormData({ name: '', email: '', region: '', account: '' });
+
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      setErrorMessage("Error adding client.");
+    }
   };
 
   return (
     <div className="dashboard-page add-client-page">
-      {/* 🔝 Main Navbar */}
       <div className="dashboard-nav">
         <div className="nav-left">
           <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
@@ -53,101 +63,29 @@ const AddClient = () => {
         <div className="nav-center">
           <h2 className="dashboard-title">Add Client</h2>
         </div>
-        <div className="nav-right"></div>
       </div>
 
-      {/* 🔽 Sub Navbar */}
       <SubNav />
 
-      {/* 📄 Page Content */}
       <div className="page-content">
         <div className="form-wrapper">
           <form className="add-client-form" onSubmit={handleSubmit}>
             <div className="form-grid">
               <div className="form-group">
                 <label>Client Name*</label>
-                <input 
-                  type="text" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  required 
-                />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required />
               </div>
               <div className="form-group">
                 <label>Email Address*</label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  required 
-                />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required />
               </div>
               <div className="form-group">
-                <label>Phone Number*</label>
-                <input 
-                  type="tel" 
-                  name="phone" 
-                  value={formData.phone} 
-                  onChange={handleChange} 
-                  required 
-                />
+                <label>Country*</label>
+                <input type="text" name="region" value={formData.region} onChange={handleChange} required />
               </div>
               <div className="form-group">
-                <label>Date of Birth</label>
-                <input 
-                  type="date" 
-                  name="dob" 
-                  value={formData.dob} 
-                  onChange={handleChange} 
-                />
-              </div>
-              <div className="form-group">
-                <label>Company Name</label>
-                <input 
-                  type="text" 
-                  name="company" 
-                  value={formData.company} 
-                  onChange={handleChange} 
-                />
-              </div>
-              <div className="form-group">
-                <label>Assigned To (Employee Name)</label>
-                <input 
-                  type="text" 
-                  name="assignedTo" 
-                  value={formData.assignedTo} 
-                  onChange={handleChange} 
-                />
-              </div>
-              <div className="form-group">
-                <label>Contract Start Date</label>
-                <input 
-                  type="date" 
-                  name="startDate" 
-                  value={formData.startDate} 
-                  onChange={handleChange} 
-                />
-              </div>
-              <div className="form-group">
-                <label>Contract End Date</label>
-                <input 
-                  type="date" 
-                  name="endDate" 
-                  value={formData.endDate} 
-                  onChange={handleChange} 
-                />
-              </div>
-              <div className="form-group address-full">
-                <label>Address</label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  rows={3}
-                  className="address-input"
-                />
+                <label>Account*</label>
+                <input type="text" name="account" value={formData.account} onChange={handleChange} required />
               </div>
             </div>
 
@@ -155,6 +93,7 @@ const AddClient = () => {
               <button type="submit">Add Client</button>
             </div>
             {successMessage && <div className="success-message">{successMessage}</div>}
+            {errorMessage && <div className="error-message">{errorMessage}</div>}
           </form>
         </div>
       </div>

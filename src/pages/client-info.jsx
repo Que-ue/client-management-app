@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import SubNav from './sub-nav'; // ⬅️ import sub-navbar
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import SubNav from "./sub-nav";
+
+const API_URL = "https://nestjs.nonprod.au.livepro.com.au/customers";
 
 const ClientInfo = () => {
   const [clients, setClients] = useState([]);
@@ -8,9 +10,19 @@ const ClientInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
+  // 🔹 Fetch clients from API
   useEffect(() => {
-    const storedClients = JSON.parse(localStorage.getItem('clients')) || [];
-    setClients(storedClients);
+    const fetchClients = async () => {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("Failed to fetch clients");
+        const data = await res.json();
+        setClients(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchClients();
   }, []);
 
   const handleMoreInfo = (client) => {
@@ -22,25 +34,55 @@ const ClientInfo = () => {
     setSelectedClient({ ...selectedClient, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    const updatedClients = clients.map((client) =>
-      client.email === selectedClient.email ? selectedClient : client
-    );
-    localStorage.setItem('clients', JSON.stringify(updatedClients));
-    setClients(updatedClients);
-    setSelectedClient(null);
+  // 🔹 Save client updates
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`${API_URL}/${selectedClient.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectedClient),
+      });
+
+      if (!res.ok) throw new Error("Failed to update client");
+
+      const updatedClients = clients.map((c) =>
+        c.id === selectedClient.id ? selectedClient : c
+      );
+      setClients(updatedClients);
+      setSelectedClient(null);
+    } catch (err) {
+      console.error("Error updating client:", err);
+    }
   };
 
-  const closeModal = () => {
-    setSelectedClient(null);
+  // 🔹 Delete client
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this client?")) return;
+    try {
+      const res = await fetch(`${API_URL}/${selectedClient.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete client");
+
+      const updatedClients = clients.filter((c) => c.id !== selectedClient.id);
+      setClients(updatedClients);
+      setSelectedClient(null);
+    } catch (err) {
+      console.error("Error deleting client:", err);
+    }
   };
+
+  const closeModal = () => setSelectedClient(null);
 
   return (
     <div className="dashboard-page client-info-page">
       {/* 🔝 Main Navbar */}
       <div className="dashboard-nav">
         <div className="nav-left">
-          <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
+          <button className="back-btn" onClick={() => navigate("/dashboard")}>
+            Back
+          </button>
         </div>
         <div className="nav-center">
           <h2 className="dashboard-title">Client Info</h2>
@@ -59,23 +101,23 @@ const ClientInfo = () => {
               <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Phone</th>
-                <th>Company</th>
+                <th>Country</th>
+                <th>Account</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {clients.length === 0 ? (
                 <tr>
-                  <td colSpan="5">No clients added yet.</td>
+                  <td colSpan="5">No clients found.</td>
                 </tr>
               ) : (
-                clients.map((client, index) => (
-                  <tr key={index} className="hover-row">
+                clients.map((client, idx) => (
+                  <tr key={idx} className="hover-row">
                     <td>{client.name}</td>
-                    <td>{client.email}</td>
-                    <td>{client.phone}</td>
-                    <td>{client.company}</td>
+                    <td>{client.endpoint}</td>
+                    <td>{client.region}</td>
+                    <td>{client.account}</td>
                     <td>
                       <button
                         className="more-info-btn"
@@ -92,6 +134,7 @@ const ClientInfo = () => {
         </div>
       </div>
 
+      {/* 🔹 Popup */}
       {selectedClient && (
         <div className="client-popup">
           <div className="popup-content">
@@ -112,78 +155,28 @@ const ClientInfo = () => {
                   <label>Email*</label>
                   <input
                     type="email"
-                    name="email"
-                    value={selectedClient.email}
+                    name="endpoint"
+                    value={selectedClient.endpoint}
                     readOnly
                   />
                 </div>
                 <div className="form-group">
-                  <label>Phone*</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={selectedClient.phone}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date of Birth</label>
-                  <input
-                    type="date"
-                    name="dob"
-                    value={selectedClient.dob}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Company</label>
+                  <label>Country*</label>
                   <input
                     type="text"
-                    name="company"
-                    value={selectedClient.company}
+                    name="region"
+                    value={selectedClient.region}
                     onChange={handleInputChange}
                     readOnly={!isEditing}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Assigned To</label>
+                  <label>Account*</label>
                   <input
                     type="text"
-                    name="assignedTo"
-                    value={selectedClient.assignedTo}
+                    name="account"
+                    value={selectedClient.account}
                     onChange={handleInputChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Contract Start Date</label>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={selectedClient.startDate}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Contract End Date</label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={selectedClient.endDate}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-                <div className="form-group address-full">
-                  <label>Address</label>
-                  <textarea
-                    name="address"
-                    value={selectedClient.address}
-                    onChange={handleInputChange}
-                    className="address-input"
                     readOnly={!isEditing}
                   />
                 </div>
@@ -196,7 +189,12 @@ const ClientInfo = () => {
               ) : (
                 <button onClick={handleSave}>Save</button>
               )}
-              <button className="cancel-btn" onClick={closeModal}>Close</button>
+              <button className="delete-btn" onClick={handleDelete}>
+                Delete
+              </button>
+              <button className="cancel-btn" onClick={closeModal}>
+                Close
+              </button>
             </div>
           </div>
         </div>

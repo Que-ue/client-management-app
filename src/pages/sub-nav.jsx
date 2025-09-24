@@ -9,18 +9,14 @@ const SubNav = () => {
   // Define canonical routes and labels
   const items = [
     { path: "/add-client", label: "Add Client" },
-    { path: "/client-info", label: "Client Info" },
-    { path: "/client-history", label: "Client History" },
-    { path: "/delete-client", label: "Delete Client" }
+    { path: "/client-info", label: "Client Info" }
   ];
 
   // Choose order depending on current pathname (so UX matches your request)
   // When on a page, show the other three in this order mapping:
   const orderMap = {
-    "/add-client": ["/client-info", "/delete-client", "/client-history"],
-    "/client-info": ["/add-client", "/client-history", "/delete-client"],
-    "/client-history": ["/add-client", "/client-info", "/delete-client"],
-    "/delete-client": ["/add-client", "/client-info", "/client-history"]
+    "/add-client": ["/client-info"],
+    "/client-info": ["/add-client"],
   };
 
   // default fallback: show all except current (in items order)
