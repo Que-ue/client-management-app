@@ -145,33 +145,31 @@ input, button, select, textarea {
 }
 
 .dashboard-nav-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
   width: 100%;
   max-width: 1200px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 20px;
   box-sizing: border-box;
 }
 
 .nav-left,
-.nav-center,
 .nav-right {
-  flex: 1;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
-.nav-left {
-  justify-content: flex-start;
-}
+.nav-left { left: 20px; }
+.nav-right { right: 20px; }
 
 .nav-center {
-  justify-content: center;
-}
-
-.nav-right {
-  justify-content: flex-end;
+  text-align: center;
 }
 
 .edit-button-wrapper {
@@ -196,7 +194,7 @@ input, button, select, textarea {
 }
 
 .back-button-wrapper {
-  margin-left: -2.5cm; 
+  margin-left: 0; /* ✅ reset wrong offset */
 }
 
 .back-btn {
@@ -216,12 +214,51 @@ input, button, select, textarea {
   transform: scale(1.03);
 }
 
+.add-client-btn {
+  padding: 10px 18px;
+  background-color: #FFAD84;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  margin-right: 120px; /* ✅ keeps it inside frame */
+}
+
+.add-client-btn:hover {
+  background-color: #e98a5f;
+  transform: scale(1.03);
+}
+
 .dashboard-title {
   font-size: 26px;
   font-weight: 700;
   color: #3E3E3E;
   white-space: nowrap;
-  text-align: center;
+  margin: 0 auto;
+}
+
+/* ✅ Add Client button in Client Info top-right */
+.client-info-page .nav-right .add-client-btn {
+  padding: 10px 18px;
+  background-color: #FFAD84;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.client-info-page .nav-right .add-client-btn:hover {
+  background-color: #e98a5f;
+  transform: scale(1.03);
 }
 
 .logout-btn, .back-btn {
@@ -256,7 +293,7 @@ input, button, select, textarea {
 .client-info-page .page-content,
 .client-history-page .page-content,
 .delete-client-page .page-content {
-  padding-top: 20px;
+  padding-top: 120px; /* ✅ increased so header+subnav don’t clash */
 }
 
 /* ------------------- Dashboard blocks ------------------- */
@@ -309,19 +346,15 @@ input, button, select, textarea {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 650px;
+  max-width: 500px; /* ✅ smaller width */
   margin: 0 auto;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  margin-bottom: 15px;
+  width: 100%;
 }
 
 .form-group label {
@@ -332,36 +365,35 @@ input, button, select, textarea {
 }
 
 .form-group input,
+.form-group select,
 textarea.address-input {
   width: 100%;
-  max-width: 100%;
   padding: 14px 16px;
   border: 1px solid #FFD5BC;
   border-radius: 10px;
   background-color: #FFF3EC;
   font-size: 14px;
   color: #3E3E3E;
-  resize: none;
   box-sizing: border-box;
 }
 
-textarea.address-input {
-  resize: vertical;
-  min-height: 80px;
-  max-height: 160px;
+.form-group select {
+  appearance: none;
+  padding-right: 36px; /* ✅ spacing for arrow */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='12'%20height='12'%20viewBox='0%200%2024%2024'%3E%3Cpath%20fill='%233E3E3E'%20d='M7%2010l5%205%205-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
 }
 
 .form-group input:focus,
-textarea.address-input:focus {
+.form-group select:focus {
   outline: none;
   background-color: #FFF0E9;
   border-color: #FFAD84;
 }
 
-.address-full {
-  grid-column: span 2;
-}
-
+/* ✅ Center button */
 .center-button {
   display: flex;
   justify-content: center;
@@ -396,45 +428,52 @@ textarea.address-input:focus {
   font-size: 14px;
 }
 
-/* ------------------- Sub-Navbar (fixed under main nav) ------------------- */
-/* Sub-Navbar Styles */
+.error-message {
+  color: #a94442;
+  background-color: #f8d7da;
+  padding: 12px 18px;
+  margin-top: 15px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ------------------- Sub-Navbar ------------------- */
 .client-subnav {
   display: flex;
   justify-content: center;
   gap: 40px;
-  background-color: transparent; /* 🔥 transparent */
-  padding: 12px 0;
-  margin-top: 80px; /* keeps it below the main navbar */
-  box-shadow: none; /* remove shadow */
+  background-color: transparent;
+  padding: 8px 0;
+  margin-top: 10px; /* ✅ reduced gap */
 }
 
 .subnav-link {
   font-size: 15px;
   font-weight: 600;
-  color: #3E3E3E; /* default text color */
+  color: #3E3E3E;
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: transparent; /* no bg */
 }
 
 .subnav-link:hover {
-  color: #FFAD84; /* 🔥 orange text on hover */
+  color: #FFAD84;
   transform: scale(1.05);
 }
 
 .subnav-link.active {
-  color: #e98a5f; /* 🔥 darker orange for active */
+  color: #e98a5f;
   font-weight: 700;
-  background: transparent; /* stays transparent */
 }
 
 /* ------------------- Client Info table ------------------- */
 .client-info-table-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 20px; /* slightly less because of fixed subnav */
+  margin-top: 20px;
   overflow-x: auto;
 }
 
@@ -492,7 +531,6 @@ textarea.address-input:focus {
   transform: scale(1.05);
 }
 
-/* ------------------- Client popup ------------------- */
 .client-popup {
   position: fixed;
   top: 0;
@@ -508,26 +546,56 @@ textarea.address-input:focus {
 
 .popup-content {
   background: #FFE0CC;
-  border-radius: 16px;
-  padding: 30px;
+  border-radius: 20px;
+  padding: 30px 24px;
   width: 90%;
-  max-width: 700px;
+  max-width: 600px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .popup-content h3 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 20px;
   text-align: center;
   color: #3E3E3E;
 }
 
 .popup-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+  box-sizing: border-box;
 }
 
+.popup-form .form-group {
+  width: 100%;
+}
+
+.popup-form .form-group input,
+.popup-form .form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #FFD5BC;
+  border-radius: 10px;
+  background-color: #FFF3EC;
+  font-size: 14px;
+  color: #3E3E3E;
+  box-sizing: border-box;
+}
+
+.popup-form .form-group input:focus,
+.popup-form .form-group select:focus {
+  outline: none;
+  background-color: #FFF0E9;
+  border-color: #FFAD84;
+}
+
+/* ✅ Popup buttons */
 .popup-buttons {
   display: flex;
   justify-content: center;
@@ -554,77 +622,27 @@ textarea.address-input:focus {
   transform: scale(1.05);
 }
 
-/* ------------------- Delete Client ------------------- */
-.delete-client-wrapper {
+/* ------------------- Header Fix ------------------- */
+.dashboard-nav {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  padding: 10px 20px;
+  position: relative;
 }
 
-.delete-client-table {
-  width: 100%;
-  max-width: 950px;
-  border-collapse: collapse;
-  background-color: #FFE0CC;
-  box-shadow: 0 8px 24px rgba(255, 173, 132, 0.2);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #FFD5BC;
+/* ✅ Back button stays left */
+.dashboard-nav .nav-left {
+  position: absolute;
+  left: 20px;
 }
 
-.delete-client-table th,
-.delete-client-table td {
-  padding: 14px 20px;
-  text-align: left;
-  border-bottom: 1px solid #FFD5BC;
+/* ✅ Title centered globally */
+.dashboard-title {
+  margin: 0 auto;
+  font-size: 22px;
+  font-weight: 600;
   color: #3E3E3E;
-  font-size: 15px;
-}
-
-.delete-client-table th {
-  background-color: #FFD5BC;
-  font-weight: 600;
-}
-
-.delete-client-table tbody tr:hover {
-  background-color: #FFF0E9;
-}
-
-.delete-client-table input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #FFAD84;
-  cursor: pointer;
-}
-
-.trash-icon {
-  color: #FF7F50;
-  font-size: 20px;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.trash-icon:hover {
-  transform: scale(1.25);
-  color: #d4532e;
-}
-
-.bulk-delete-btn {
-  padding: 12px 24px;
-  margin-top: 20px;
-  background-color: #FF5C5C;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.bulk-delete-btn:hover {
-  background-color: #D40000;
-  transform: scale(1.05);
+  text-align: center;
 }
 
 /* ------------------- Miscellaneous ------------------- */

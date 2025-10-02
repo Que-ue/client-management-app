@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// AddClient.jsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SubNav from './sub-nav';
 
@@ -8,27 +9,58 @@ const AddClient = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    environment: '',
+    clientUrlPrefix: '',
+    clientUrlDomain: '@livepro.com.au',
     name: '',
-    email: '',
     region: '',
-    account: ''
   });
 
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const getDomainOptions = (env) => {
+    switch (env) {
+      case 'Production-1':
+      case 'Production-2':
+        return ['@livepro.com.au', '@livepro.com', '@livepro.au'];
+      case 'Staging':
+        return ['@livepro.com.au', '@livepro.au'];
+      case 'Develop':
+        return ['@livepro.com.au', '@nonprod.au.livepro.com.au'];
+      default:
+        return ['@livepro.com.au'];
+    }
+  };
+
+  // auto set region for Staging / Develop
+  useEffect(() => {
+    if (formData.environment === 'Staging' || formData.environment === 'Develop') {
+      setFormData((prev) => ({ ...prev, region: 'sydney' }));
+    } else {
+      setFormData((prev) => ({ ...prev, region: '' }));
+    }
+  }, [formData.environment]);
+
+  // default name = prefix
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.clientUrlPrefix || prev.name,
+    }));
+  }, [formData.clientUrlPrefix]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ✅ Email domain check
-    if (!formData.email.endsWith("@livepro.com.au")) {
-      setErrorMessage("Only @livepro.com.au emails are allowed!");
-      return;
-    }
+    const fullEmail = `${formData.clientUrlPrefix}${formData.clientUrlDomain}`;
 
     try {
       const response = await fetch(API_URL, {
@@ -36,17 +68,23 @@ const AddClient = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
-          endpoint: formData.email,  // API expects "endpoint" instead of email
+          endpoint: fullEmail,
           region: formData.region,
-          account: formData.account
-        })
+          environment: formData.environment,
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to add client");
 
       setSuccessMessage("Client added successfully!");
       setErrorMessage('');
-      setFormData({ name: '', email: '', region: '', account: '' });
+      setFormData({
+        environment: '',
+        clientUrlPrefix: '',
+        clientUrlDomain: '@livepro.com.au',
+        name: '',
+        region: '',
+      });
 
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
@@ -67,35 +105,86 @@ const AddClient = () => {
 
       <SubNav />
 
-      <div className="page-content">
-        <div className="form-wrapper">
-          <form className="add-client-form" onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Client Name*</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Email Address*</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Country*</label>
-                <input type="text" name="region" value={formData.region} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Account*</label>
-                <input type="text" name="account" value={formData.account} onChange={handleChange} required />
-              </div>
-            </div>
+      <div className="form-wrapper">
+        <form className="add-client-form" onSubmit={handleSubmit}>
 
-            <div className="center-button">
-              <button type="submit">Add Client</button>
+          {/* Environment Dropdown */}
+          <div className="form-group">
+            <label>Environment*</label>
+            <select
+              name="environment"
+              value={formData.environment}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Environment</option>
+              <option value="Production-1">Production-1</option>
+              <option value="Production-2">Production-2</option>
+              <option value="Staging">Staging</option>
+              <option value="Develop">Develop</option>
+            </select>
+          </div>
+
+          {/* Client_URL (Prefix + Domain) */}
+          <div className="form-group">
+            <label>Client_URL*</label>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                type="text"
+                name="clientUrlPrefix"
+                placeholder="Enter client"
+                value={formData.clientUrlPrefix}
+                onChange={handleChange}
+                required
+                style={{ flex: 1 }}
+              />
+              <select
+                name="clientUrlDomain"
+                value={formData.clientUrlDomain}
+                onChange={handleChange}
+                style={{ flex: 1.2 }}
+              >
+                {getDomainOptions(formData.environment).map((domain, idx) => (
+                  <option key={idx} value={domain}>{domain}</option>
+                ))}
+              </select>
             </div>
-            {successMessage && <div className="success-message">{successMessage}</div>}
-            {errorMessage && <div className="error-message">{errorMessage}</div>}
-          </form>
-        </div>
+          </div>
+
+          {/* Client Name */}
+          <div className="form-group">
+            <label>Client Name*</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Region Dropdown */}
+          <div className="form-group">
+            <label>Region*</label>
+            <select
+              name="region"
+              value={formData.region}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Region</option>
+              <option value="sydney">sydney</option>
+              <option value="london">london</option>
+              <option value="virginia">virginia</option>
+            </select>
+          </div>
+
+          <div className="center-button">
+            <button type="submit">Add Client</button>
+          </div>
+          {successMessage && <div className="success-message">{successMessage}</div>}
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
+        </form>
       </div>
     </div>
   );
