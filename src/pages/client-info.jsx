@@ -10,35 +10,13 @@ const ClientInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
-  // 🔹 Auto account numbers based on environment
-  const getAccountByEnvironment = (env) => {
-    switch (env) {
-      case "Production-1":
-        return "5716008544";
-      case "Production-2":
-        return "5716008533";
-      case "Staging":
-        return "5716008522";
-      case "Develop":
-        return "5716008511";
-      default:
-        return "";
-    }
-  };
-
   useEffect(() => {
     const fetchClients = async () => {
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Failed to fetch clients");
         const data = await res.json();
-
-        // 🔹 Normalize data (map environment → account number)
-        const updated = data.map((c) => ({
-          ...c,
-          account: getAccountByEnvironment(c.environment),
-        }));
-        setClients(updated);
+        setClients(data); // use account directly from API
       } catch (err) {
         console.error(err);
       }
@@ -47,11 +25,8 @@ const ClientInfo = () => {
   }, []);
 
   const handleMoreInfo = (client) => {
-    setSelectedClient({
-      ...client,
-      account: getAccountByEnvironment(client.environment),
-    });
-    setIsEditing(false);
+    setSelectedClient({ ...client }); // copy client object
+    setIsEditing(false); // Name is editable only after clicking Edit
   };
 
   const handleInputChange = (e) => {
@@ -77,6 +52,7 @@ const ClientInfo = () => {
       );
       setClients(updatedClients);
       setSelectedClient(null);
+      setIsEditing(false);
     } catch (err) {
       console.error("Error updating client:", err);
     }
@@ -94,12 +70,16 @@ const ClientInfo = () => {
       const updatedClients = clients.filter((c) => c.id !== selectedClient.id);
       setClients(updatedClients);
       setSelectedClient(null);
+      setIsEditing(false);
     } catch (err) {
       console.error("Error deleting client:", err);
     }
   };
 
-  const closeModal = () => setSelectedClient(null);
+  const closeModal = () => {
+    setSelectedClient(null);
+    setIsEditing(false);
+  };
 
   return (
     <div className="dashboard-page client-info-page">
@@ -145,7 +125,7 @@ const ClientInfo = () => {
                   <td>{client.name}</td>
                   <td>{client.endpoint}</td>
                   <td>{client.region}</td>
-                  <td>{getAccountByEnvironment(client.environment)}</td>
+                  <td>{client.account}</td>
                   <td>
                     <button
                       className="more-info-btn"
@@ -175,7 +155,7 @@ const ClientInfo = () => {
                   name="name"
                   value={selectedClient.name}
                   onChange={handleInputChange}
-                  readOnly={!isEditing}
+                  readOnly={!isEditing} // editable only after clicking Edit
                 />
               </div>
 
@@ -201,13 +181,13 @@ const ClientInfo = () => {
                 />
               </div>
 
-              {/* Account (derived from environment, always read-only) */}
+              {/* Account (always read-only from API) */}
               <div className="form-group">
                 <label>Account*</label>
                 <input
                   type="text"
                   name="account"
-                  value={getAccountByEnvironment(selectedClient.environment)}
+                  value={selectedClient.account}
                   readOnly
                 />
               </div>

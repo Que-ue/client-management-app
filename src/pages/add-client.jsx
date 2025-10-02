@@ -19,6 +19,17 @@ const AddClient = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // 🔹 Map environment to account
+  const getAccountByEnvironment = (env) => {
+    switch (env) {
+      case "Production-1": return "5716008544";
+      case "Production-2": return "5716008533";
+      case "Staging": return "5716008522";
+      case "Develop": return "5716008511";
+      default: return "";
+    }
+  };
+
   const getDomainOptions = (env) => {
     switch (env) {
       case 'Production-1':
@@ -61,6 +72,7 @@ const AddClient = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fullEmail = `${formData.clientUrlPrefix}${formData.clientUrlDomain}`;
+    const account = getAccountByEnvironment(formData.environment);
 
     try {
       const response = await fetch(API_URL, {
@@ -70,7 +82,7 @@ const AddClient = () => {
           name: formData.name,
           endpoint: fullEmail,
           region: formData.region,
-          environment: formData.environment,
+          account: account, // ✅ sending account now
         }),
       });
 
